@@ -5,13 +5,13 @@ import { handleThrowError } from "../configs/errorHandle";
 import jwt from 'jsonwebtoken';
 
 export class AuthServices {
-    constructor(private authRep: AuthRepository) {}
+    constructor(private authRep: AuthRepository) { }
 
     async registerUser(user: IUser): Promise<string> {
         try {
             const existingUser = await this.authRep.findByEmail(user.email);
             if (existingUser) {
-               throw handleThrowError("Email already exists", 400);
+                throw handleThrowError("Email already exists", 400);
             }
 
             const hashedPassword = await hashPassword(user.password);
@@ -41,7 +41,7 @@ export class AuthServices {
 
             const token = jwt.sign(
                 { userId: user._id, email: user.email },
-                process.env.JWT_SECRET || 'Token', 
+                process.env.JWT_SECRET || 'Token',
                 { expiresIn: '15m' }
             );
 

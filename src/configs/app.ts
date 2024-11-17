@@ -28,8 +28,8 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 
 
-app.use('/auth',authRoute)
-app.use('/blog',blogRoute)
+app.use('/auth', authRoute)
+app.use('/blog', blogRoute)
 
 // Global error handler (should be placed after routes and other middlewares)
 app.use(globalErrorHandler);

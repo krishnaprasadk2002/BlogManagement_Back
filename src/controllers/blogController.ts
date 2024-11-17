@@ -63,10 +63,101 @@ export class BlogController {
                 return
             }
 
-            res.status(HttpStatusCode.CREATED).json(handleSuccess('Blog created successfully', 201, createdBlog));
+            res.status(HttpStatusCode.CREATED).json(createdBlog.data);
         } catch (error) {
             console.error(error);
             res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json(handleError('Internal server error', 500));
         }
     }
+
+
+    // Get Blog Details
+    async getBlogDetails(req: authenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const authorId = req.user?.userId;
+            if (!authorId) {
+                res.status(HttpStatusCode.BAD_REQUEST).json(handleError('User ID not provided', 400));
+                return
+            }
+
+            const response = await this.blogService.getBlogDetails(authorId);
+
+            if (!response) {
+                res.status(HttpStatusCode.NOT_FOUND).json(handleError('Blog details not found', 404));
+                return;
+            }
+            res.status(HttpStatusCode.OK).json(response.data);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+
+    async blogDataById(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const blogId = req.query.blogId as string;
+
+            if (!blogId) {
+                res.status(HttpStatusCode.BAD_REQUEST).json(handleError("Blog ID is required", 400));
+                return;
+            }
+            const response = await this.blogService.blogDataById(blogId);
+
+            if (!response) {
+                res.status(HttpStatusCode.NOT_FOUND).json(handleError("Blog details not found", 404));
+                return;
+            }
+            res.status(HttpStatusCode.OK).json(response.data);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async updateBlog(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const blogData = req.body;
+            console.log(blogData, 'blog data');
+
+
+            if (!blogData._id) {
+                res.status(HttpStatusCode.BAD_REQUEST).json({ message: 'Blog ID is required', status: 400 });
+                return;
+            }
+
+            const updatedBlog = await this.blogService.updateBlog(blogData);
+
+            if (!updatedBlog) {
+                res.status(HttpStatusCode.NOT_FOUND).json({ message: 'Blog not found', status: 404 });
+                return;
+            }
+
+            res.status(HttpStatusCode.OK).json({
+                message: 'Blog updated successfully',
+                data: updatedBlog,
+                status: 200,
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async deleteBlogById(req: Request, res: Response, next: NextFunction): Promise<void> {
+
+        try {
+            const blogId = req.params.blogId;
+            if (!blogId) {
+                res.status(HttpStatusCode.BAD_REQUEST).json({ message: 'Blog ID is required', status: 400 });
+                return;
+            }
+            const response = await this.blogService.deleteBlogById(blogId);
+            if (!response) {
+                res.status(HttpStatusCode.NOT_FOUND).json({ message: 'Blog not found or not deleted', status: 404 });
+                return;
+            }
+            res.status(HttpStatusCode.OK).json({ message: 'Blog deleted successfully', status: 200 });
+        } catch (error) {
+            next(error)
+        }
+    }
+
 }

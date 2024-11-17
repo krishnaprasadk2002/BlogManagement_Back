@@ -1,17 +1,17 @@
 import mongoose from "mongoose";
 
-const dbUrl:string = process.env.MONGO_URL!;
+const dbUrl: string = process.env.MONGO_URL!;
 
-if(!dbUrl){
+if (!dbUrl) {
     console.log('MongoDB URI is not defined. Make sure to set the MONGO_URI environment variable.');
     process.exit(1);
 }
 
-const connectDB = async()=>{
+const connectDB = async () => {
     try {
-        const connect = await mongoose.connect(dbUrl,{dbName:'Blog_Management'})
+        const connect = await mongoose.connect(dbUrl, { dbName: 'Blog_Management' })
         console.log(`mongodb connected:${connect.connection.host}`);
-        
+
     } catch (error) {
         console.log(error);
         setTimeout(connectDB, 5000);

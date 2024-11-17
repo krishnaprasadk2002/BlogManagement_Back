@@ -14,7 +14,7 @@ export class AuthRepository {
             handleThrowError("Error finding user by email", 500);
         }
     }
-    
+
     async createUser(user: IUser) {
         try {
             const newUser = new Users(user);
@@ -25,5 +25,5 @@ export class AuthRepository {
             handleThrowError("Error creating user", 500);
         }
     }
-    
+
 }

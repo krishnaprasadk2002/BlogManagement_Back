@@ -11,10 +11,9 @@ async function uploadCloudinary(filePath: string) {
     try {
         const result = await cloudinary.uploader.upload(filePath, {
             folder: 'Blog_Management',
-             resource_type: 'auto'
-            
+
         });
-        
+
         return result.secure_url;
     } catch (error) {
         console.error('Error uploading to Cloudinary:', error);

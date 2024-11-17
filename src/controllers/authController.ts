@@ -2,6 +2,7 @@ import { AuthServices } from "../services/authService";
 import { Request, Response, NextFunction } from 'express';
 import { handleError, handleSuccess } from "../utils/responseHandler";
 import { HttpStatusCode } from "../enums/httpStatusCode";
+import { authenticatedRequest } from "../middlewares/accessToken";
 
 
 export class AuthController {
@@ -26,7 +27,7 @@ export class AuthController {
         }
     }
 
-    async loginUser(req:Request,res:Response,next:NextFunction):Promise<void>{
+    async loginUser(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { email, password } = req.body;
 
@@ -35,13 +36,13 @@ export class AuthController {
                 return;
             }
 
-            const response = await this.authService.loginUsers(email,password)
+            const response = await this.authService.loginUsers(email, password)
 
-              // Set JWT token in an HttpOnly cookie for security
-              res.cookie('token', response.token, {
-                httpOnly: true, 
+            // Set JWT token in an HttpOnly cookie for security
+            res.cookie('token', response.token, {
+                httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                maxAge: 15 * 60 * 1000 
+                maxAge: 15 * 60 * 1000
             });
 
             res.status(HttpStatusCode.OK).json(handleSuccess('Login successful!', 200, {
@@ -52,4 +53,35 @@ export class AuthController {
             next(error)
         }
     }
+
+
+    async isAuth(req: authenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+        try {
+            if (!req.user) {
+                res.status(HttpStatusCode.UNAUTHORIZED).json({ message: 'User not authenticated' });
+                return
+            }
+            res.status(HttpStatusCode.OK).json({ message: 'Success' });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async logoutUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            await res.clearCookie('token', {
+                httpOnly: true, 
+                secure: process.env.NODE_ENV === 'production',
+            });
+
+            // Respond with success message
+            res.status(200).json({ message: 'Successfully logged out' });
+        } catch (error) {
+            console.error('Error during logout:', error);
+            res.status(500).json({ message: 'Failed to log out' });
+        }
+    }
+
+
+
 }

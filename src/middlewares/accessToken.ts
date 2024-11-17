@@ -14,8 +14,8 @@ export interface decodedUser {
 }
 
 export const authenticateToken = (req: authenticatedRequest, res: Response, next: NextFunction): void => {
-    const token = req.cookies.token; 
-    console.log("Token in cookies:", token); 
+    const token = req.cookies.token;
+    console.log("Token in cookies:", token);
     if (!token) {
         console.log("No token found, unauthorized access");
         res.status(HttpStatusCode.UNAUTHORIZED).json({ message: 'Unauthorized' });
